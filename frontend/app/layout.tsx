@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PhishGuard AI",
+  title: "Catchy",
   description: "Explainable phishing detection — forensics + ML + LLM analyst.",
 };
 

@@ -50,6 +50,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build backend image
-        run: docker build -t phishguard-backend ./backend
+        run: docker build -t catchy-backend ./backend
       - name: Build frontend image
-        run: docker build -t phishguard-frontend ./frontend
+        run: docker build -t catchy-frontend ./frontend

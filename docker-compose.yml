@@ -1,5 +1,5 @@
 # ==================================================================
-# PhishGuard AI — local full-stack orchestration.
+# Catchy — local full-stack orchestration.
 # `docker compose up --build` brings up the whole system:
 #   postgres · redis · api · worker · web
 # The api and worker share one backend image (different commands).
@@ -9,13 +9,13 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-phishguard}
+      POSTGRES_USER: ${POSTGRES_USER:-catchy}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-in-prod}
-      POSTGRES_DB: ${POSTGRES_DB:-phishguard}
+      POSTGRES_DB: ${POSTGRES_DB:-catchy}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-phishguard}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-catchy}"]
       interval: 5s
       timeout: 3s
       retries: 5

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # ------------------------------------------------------------------
-# PhishGuard AI backend image.
+# Catchy backend image.
 # Security posture (see docs/architecture.md §Security): slim base,
 # pinned Python, non-root runtime user, deps installed as a cached layer.
 # The same image serves both the API and the Celery worker — the compose

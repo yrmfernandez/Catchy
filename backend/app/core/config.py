@@ -21,13 +21,13 @@ class Settings(BaseSettings):
     # ---- Core ----
     environment: str = "development"
     log_level: str = "INFO"
-    project_name: str = "PhishGuard AI"
+    project_name: str = "Catchy"
     api_v1_prefix: str = "/api/v1"
 
     # ---- Database ----
-    postgres_user: str = "phishguard"
+    postgres_user: str = "catchy"
     postgres_password: str = "change-me-in-prod"
-    postgres_db: str = "phishguard"
+    postgres_db: str = "catchy"
     postgres_host: str = "postgres"
     postgres_port: int = 5432
 

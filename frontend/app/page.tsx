@@ -54,7 +54,7 @@ export default function Home() {
         >
           <span style={{ fontSize: 22 }}>🛡️</span>
           <h1 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.02em" }}>
-            PhishGuard AI
+            Catchy
           </h1>
         </div>
         <p style={{ color: "var(--ink-muted)", marginTop: 0 }}>

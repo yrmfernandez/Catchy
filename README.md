@@ -1,4 +1,4 @@
-# 🛡️ PhishGuard AI
+# 🛡️ Catchy
 
 > Layered phishing-detection platform that fuses deterministic email forensics, a calibrated ML classifier, and an LLM analyst into a single **explainable** 0–100 risk score.
 
@@ -22,7 +22,7 @@
 ## Repository layout
 
 ```
-phishguard-ai/
+catchy/
 ├── frontend/   # Next.js app
 ├── backend/    # FastAPI + Celery (Clean Architecture)
 ├── ml/         # training pipelines, datasets, model registry

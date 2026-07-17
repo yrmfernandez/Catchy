@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # ------------------------------------------------------------------
-# PhishGuard AI frontend image (Next.js standalone output).
+# Catchy frontend image (Next.js standalone output).
 # Multi-stage: install → build → tiny runtime with a non-root user.
 # ------------------------------------------------------------------
 FROM node:20-slim AS deps

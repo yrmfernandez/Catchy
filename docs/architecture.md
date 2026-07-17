@@ -1,4 +1,4 @@
-# PhishGuard AI — Architecture
+# Catchy — Architecture
 
 > Layered phishing detection that fuses deterministic email forensics, a calibrated ML
 > classifier, and an LLM analyst into a single **explainable** 0–100 risk score.

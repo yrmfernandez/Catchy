@@ -7,7 +7,7 @@ consume it via Redis. The scan-pipeline tasks replace/join this at M4.
 from app.workers.celery_app import celery_app
 
 
-@celery_app.task(name="phishguard.ping")
+@celery_app.task(name="catchy.ping")
 def ping() -> str:
     """Health task — returns 'pong' so we can verify the broker round-trip."""
     return "pong"
