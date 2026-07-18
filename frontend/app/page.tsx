@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LogoMark } from "@/components/Logo";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
@@ -33,7 +34,7 @@ export default function Home() {
   return (
     <main
       style={{
-        minHeight: "100vh",
+        minHeight: "calc(100dvh - 56px)",
         display: "grid",
         placeItems: "center",
         padding: "2rem",
@@ -47,12 +48,14 @@ export default function Home() {
           border: "1px solid var(--line)",
           borderRadius: 14,
           padding: "2rem",
+          boxShadow: "var(--shadow)",
+          transition: "background-color 0.2s ease, border-color 0.2s ease",
         }}
       >
         <div
           style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}
         >
-          <span style={{ fontSize: 22 }}>🛡️</span>
+          <LogoMark size={24} />
           <h1 style={{ margin: 0, fontSize: 22, letterSpacing: "-0.02em" }}>
             Catchy
           </h1>
@@ -78,7 +81,7 @@ export default function Home() {
               height: 10,
               borderRadius: "50%",
               background: online ? "var(--safe)" : "var(--crit)",
-              boxShadow: `0 0 0 3px ${online ? "#12271f" : "#33191c"}`,
+              boxShadow: `0 0 0 3px ${online ? "var(--ring-safe)" : "var(--ring-crit)"}`,
             }}
           />
           <span className="mono" style={{ fontSize: 13 }}>
