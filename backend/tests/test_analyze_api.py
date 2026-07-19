@@ -26,6 +26,7 @@ def test_analyze_pasted_phishing() -> None:
     # ML + intel + fusion present and well-formed regardless of external config.
     assert isinstance(body["ml"]["available"], bool)
     assert body["intel"]["enabled"] is False  # intel off by default -> deterministic
+    assert body["analysis"]["available"] is False  # no LLM key in tests -> deterministic
     fusion = body["fusion"]
     assert 0 <= fusion["score"] <= 100
     assert fusion["method"] in {"fused", "rules_only"}

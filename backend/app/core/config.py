@@ -63,9 +63,15 @@ class Settings(BaseSettings):
     intel_max_urls: int = 5  # only enrich the top-N URLs to respect rate limits
 
     # ---- LLM analyst (Gemini first; provider-swappable) ----
+    llm_enabled: bool = True  # off => never call the LLM even with a key
     llm_provider: str = "gemini"
     gemini_api_key: str = ""
     llm_model: str = "gemini-1.5-flash"
+    llm_timeout_seconds: float = 8.0
+    # Cap the email text handed to the LLM: bounds tokens/cost and shrinks the
+    # prompt-injection surface. The verdict is already decided, so this is lossy
+    # only for the *explanation*, never for detection.
+    llm_max_input_chars: int = 4_000
 
     @property
     def database_url(self) -> str:

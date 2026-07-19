@@ -9,6 +9,7 @@ from app.schemas.features import (
     Severity,
 )
 from app.schemas.intel import ThreatIntel
+from app.schemas.llm import LlmAnalysis
 from app.services.scoring import ScoreFuser
 
 fuser = ScoreFuser(critical_floor=90)
@@ -91,3 +92,20 @@ def test_intel_young_domain_raises_score() -> None:
     boosted = fuser.fuse(features, _assessment(0), ml, intel)
 
     assert boosted.score > baseline.score
+
+
+def test_ai_confidence_escalates_but_cannot_exonerate() -> None:
+    features = FeatureVector(spf_fail=True)
+    ml = MLPrediction(available=True, probability=0.5)
+    base = fuser.fuse(features, _assessment(0), ml)
+
+    # High-confidence LLM raises the score and appears as a weighted component.
+    high = LlmAnalysis(available=True, confidence=1.0)
+    raised = fuser.fuse(features, _assessment(0), ml, None, high)
+    assert raised.score >= base.score
+    assert any(c.name == "ai" for c in raised.components)
+
+    # A jailbroken "this is safe" (confidence 0) must NOT lower the score.
+    low = LlmAnalysis(available=True, confidence=0.0)
+    lowered = fuser.fuse(features, _assessment(0), ml, None, low)
+    assert lowered.score == base.score

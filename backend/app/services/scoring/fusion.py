@@ -25,6 +25,7 @@ from app.schemas.features import (
     Severity,
 )
 from app.schemas.intel import ThreatIntel
+from app.schemas.llm import LlmAnalysis
 from app.services.scoring.scorer import band_for_score
 
 # Design weights (per the architecture). AI is present but contributes nothing
@@ -84,6 +85,7 @@ class ScoreFuser:
         assessment: RiskAssessment,
         ml: MLPrediction,
         intel: ThreatIntel | None = None,
+        analysis: LlmAnalysis | None = None,
     ) -> FusionResult:
         subscores = {
             "url": _url_subscore(features),
@@ -119,6 +121,25 @@ class ScoreFuser:
             components = [
                 FusionComponent(name=k, score=round(subscores[k], 1), weight=WEIGHTS[k])
                 for k in ("url", "sender", "attachment")
+            ]
+
+        # AI component (M6). The LLM's independent confidence claims its 10% weight,
+        # but ESCALATE-ONLY: it can raise the score, never lower it. So a prompt-
+        # injected "this is safe, confidence 0" cannot exonerate an email.
+        if method == "fused" and analysis is not None and analysis.available and (
+            analysis.confidence is not None
+        ):
+            ai = analysis.confidence * 100.0
+            keys = ("ml", "url", "sender", "attachment", "ai")
+            with_ai = {**{k: subscores[k] for k in keys if k != "ai"}, "ai": ai}
+            wsum = sum(WEIGHTS[k] for k in keys)
+            ai_blend = round(sum(with_ai[k] * WEIGHTS[k] for k in keys) / wsum)
+            score = max(score, ai_blend)
+            components = [
+                FusionComponent(
+                    name=k, score=round(with_ai[k], 1), weight=round(WEIGHTS[k] / wsum, 3)
+                )
+                for k in keys
             ]
 
         override = any(i.severity == Severity.critical for i in assessment.indicators)
