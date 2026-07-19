@@ -1,0 +1,26 @@
+Return-Path: <news@acme.com>
+Received: from mail.acme.com (mail.acme.com [203.0.113.5]) by mx.example.org with ESMTPS id abc123 for <user@example.org>; Mon, 14 Jul 2026 09:00:00 +0000
+Authentication-Results: mx.example.org; spf=pass smtp.mailfrom=acme.com; dkim=pass header.d=acme.com; dmarc=pass header.from=acme.com
+Received-SPF: Pass (mx.example.org: domain of acme.com designates 203.0.113.5 as permitted sender)
+DKIM-Signature: v=1; a=rsa-sha256; d=acme.com; s=sel; h=from:subject; bh=abcbh; b=xyzsig
+From: Acme News <news@acme.com>
+Reply-To: Acme News <news@acme.com>
+To: user@example.org
+Subject: Your weekly Acme digest
+Date: Mon, 14 Jul 2026 09:00:00 +0000
+Message-ID: <20260714090000.1@acme.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="alt-boundary"
+
+--alt-boundary
+Content-Type: text/plain; charset="utf-8"
+
+Hello! Read this week's updates at https://www.acme.com/digest
+Thanks, The Acme Team
+
+--alt-boundary
+Content-Type: text/html; charset="utf-8"
+
+<html><body><p>Hello! Read this week's updates <a href="https://www.acme.com/digest">on our site</a>.</p></body></html>
+
+--alt-boundary--

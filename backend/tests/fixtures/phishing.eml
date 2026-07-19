@@ -1,0 +1,34 @@
+Return-Path: <bounce@shady-mailer.ru>
+Received: from unknown (unknown [198.51.100.77]) by mx.example.org with SMTP id def456 for <user@example.org>; Tue, 15 Jul 2026 03:12:00 +0000
+Authentication-Results: mx.example.org; spf=fail smtp.mailfrom=shady-mailer.ru; dkim=none; dmarc=fail header.from=paypa1-secure.com
+From: PayPal Service <service@paypa1-secure.com>
+Reply-To: <recover@mailbox-verify.ru>
+To: user@example.org
+Subject: Urgent: your account has been limited
+Date: Tue, 15 Jul 2026 03:12:00 +0000
+Message-ID: <9910@paypa1-secure.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="mixed-boundary"
+
+--mixed-boundary
+Content-Type: multipart/alternative; boundary="alt-boundary"
+
+--alt-boundary
+Content-Type: text/plain; charset="utf-8"
+
+Your account is limited. Verify now: http://198.51.100.77/verify
+
+--alt-boundary
+Content-Type: text/html; charset="utf-8"
+
+<html><body><p>Your account is limited. <a href="http://198.51.100.77/verify-login">https://www.paypal.com/login</a></p></body></html>
+
+--alt-boundary--
+--mixed-boundary
+Content-Type: application/octet-stream; name="invoice.pdf.exe"
+Content-Disposition: attachment; filename="invoice.pdf.exe"
+Content-Transfer-Encoding: base64
+
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAA=
+
+--mixed-boundary--

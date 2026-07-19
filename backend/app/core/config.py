@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     project_name: str = "Catchy"
     api_v1_prefix: str = "/api/v1"
 
+    # ---- Scanning limits ----
+    # Cap the raw email size we will parse. Emails larger than this are rejected
+    # before parsing, bounding memory use and blunting a trivial DoS vector.
+    max_email_bytes: int = 2_000_000  # 2 MB
+
     # ---- Database ----
     postgres_user: str = "catchy"
     postgres_password: str = "change-me-in-prod"
