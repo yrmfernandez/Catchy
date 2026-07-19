@@ -16,6 +16,13 @@ dependencies = [
     "celery>=5.4",
     "redis>=5.0",
     "httpx>=0.27",  # async client for threat-intel provider calls
+    # Persistence + auth (M7)
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.1",  # PostgreSQL driver (sync for alembic, async for the app)
+    "pyjwt>=2.8",
+    "bcrypt>=4.1",
+    "email-validator>=2.1",  # pydantic EmailStr validation
     # ML serving: load and run the M3 model bundle. The artifact holds only
     # sklearn/scipy objects, so the training package (catchy_ml) is not needed here.
     "scikit-learn>=1.5",
@@ -30,6 +37,7 @@ dev = [
     "pytest>=8.2",
     "httpx>=0.27",
     "ruff>=0.5",
+    "aiosqlite>=0.20",  # in-memory async DB for tests (no Postgres needed)
 ]
 
 [tool.setuptools.packages.find]

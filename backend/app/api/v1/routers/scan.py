@@ -9,17 +9,39 @@ own.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+import logging
+
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_email_parser, get_scan_service
+from app.api.security_deps import get_current_user_optional
 from app.core.config import Settings, get_settings
+from app.db.models import User
+from app.db.repositories import ScanRepository
+from app.db.session import get_session
 from app.schemas.email import ParsedEmail
 from app.schemas.scan import ScanResult
 from app.services.analysis import ScanService
 from app.services.parsing import EmailParserService
 
+logger = logging.getLogger("catchy.scan")
 router = APIRouter(prefix="/scan", tags=["scan"])
+
+
+async def _maybe_save(
+    result: ScanResult, user: User | None, session: AsyncSession, response: Response
+) -> None:
+    """Persist the scan for signed-in users. Best-effort: a DB hiccup must not
+    fail the scan itself — the caller already has their result."""
+    if user is None:
+        return
+    try:
+        scan = await ScanRepository(session).create(user.id, result)
+        response.headers["X-Scan-Id"] = str(scan.id)
+    except Exception:  # noqa: BLE001
+        logger.exception("failed to persist scan for user %s", user.id)
 
 
 class ParseRequest(BaseModel):
@@ -65,18 +87,26 @@ async def parse_uploaded(
 @router.post("/analyze", response_model=ScanResult, summary="Analyze a pasted email")
 async def analyze_pasted(
     payload: ParseRequest,
+    response: Response,
     service: ScanService = Depends(get_scan_service),
     settings: Settings = Depends(get_settings),
+    user: User | None = Depends(get_current_user_optional),
+    session: AsyncSession = Depends(get_session),
 ) -> ScanResult:
     _guard_size(len(payload.raw_email.encode("utf-8", "replace")), settings)
-    return await service.analyze_async(payload.raw_email)
+    result = await service.analyze_async(payload.raw_email)
+    await _maybe_save(result, user, session, response)
+    return result
 
 
 @router.post("/analyze/file", response_model=ScanResult, summary="Analyze an uploaded .eml")
 async def analyze_uploaded(
+    response: Response,
     file: UploadFile = File(..., description="An .eml / RFC 5322 message file"),
     service: ScanService = Depends(get_scan_service),
     settings: Settings = Depends(get_settings),
+    user: User | None = Depends(get_current_user_optional),
+    session: AsyncSession = Depends(get_session),
 ) -> ScanResult:
     raw = await file.read()
     if not raw:
@@ -84,4 +114,6 @@ async def analyze_uploaded(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded file is empty."
         )
     _guard_size(len(raw), settings)
-    return await service.analyze_async(raw)
+    result = await service.analyze_async(raw)
+    await _maybe_save(result, user, session, response)
+    return result

@@ -17,6 +17,9 @@ WORKDIR /app
 # Copy metadata + code, then install the project (runtime deps only).
 COPY pyproject.toml ./
 COPY app ./app
+# Alembic config + migrations, so the container can run `alembic upgrade head`.
+COPY alembic.ini ./
+COPY migrations ./migrations
 RUN pip install --upgrade pip && pip install .
 
 # Run as a non-root user.

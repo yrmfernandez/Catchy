@@ -51,6 +51,12 @@ class Settings(BaseSettings):
     # ---- Redis (cache + Celery broker) ----
     redis_url: str = "redis://redis:6379/0"
 
+    # ---- Auth (M7) ----
+    # JWT signing secret. The default is dev-only; set a long random value in prod.
+    jwt_secret: str = "dev-insecure-change-me"
+    jwt_algorithm: str = "HS256"
+    access_token_ttl_minutes: int = 60 * 12
+
     # ---- Threat intelligence (M5) ----
     # Master switch. Off by default: with no keys the enrichment is a no-op, and
     # keeping it explicit means the local pipeline stays deterministic in tests/CI.
