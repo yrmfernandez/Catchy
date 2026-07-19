@@ -25,11 +25,13 @@ yarn-error.log*
 .env.*.local
 *.pem
 
-# ---- ML artifacts (large; tracked in registry, not git) ----
+# ---- ML artifacts (generated; not tracked in git) ----
 ml/data/raw/
 ml/data/processed/
+ml/data/*.csv
 ml/models/*.joblib
 ml/models/*.pkl
+ml/models/*.json
 
 # ---- Editor / OS ----
 .vscode/

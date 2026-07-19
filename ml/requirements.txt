@@ -1,0 +1,12 @@
+# Catchy ML training workspace.
+# Featurization reuses the backend package (parser + FeatureExtractor); either
+# run from the monorepo (backend/ is a sibling — see catchy_ml/_backend.py) or
+# `pip install -e ../backend`.
+scikit-learn>=1.5
+lightgbm>=4.3
+pandas>=2.2
+numpy>=1.26
+scipy>=1.13
+joblib>=1.4
+pytest>=8.2
+ruff>=0.5
