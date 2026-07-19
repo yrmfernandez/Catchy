@@ -24,6 +24,7 @@ from app.schemas.features import (
     RiskAssessment,
     Severity,
 )
+from app.schemas.intel import ThreatIntel
 from app.services.scoring.scorer import band_for_score
 
 # Design weights (per the architecture). AI is present but contributes nothing
@@ -82,12 +83,16 @@ class ScoreFuser:
         features: FeatureVector,
         assessment: RiskAssessment,
         ml: MLPrediction,
+        intel: ThreatIntel | None = None,
     ) -> FusionResult:
         subscores = {
             "url": _url_subscore(features),
             "sender": _sender_subscore(features),
             "attachment": _attachment_subscore(features),
         }
+        # External reputation (M5) sharpens the structural sub-scores when present.
+        if intel is not None and intel.available:
+            self._apply_intel(subscores, intel)
         if ml.available and ml.probability is not None:
             subscores["ml"] = ml.probability * 100.0
 
@@ -117,6 +122,10 @@ class ScoreFuser:
             ]
 
         override = any(i.severity == Severity.critical for i in assessment.indicators)
+        if intel is not None:
+            override = override or bool(
+                intel.url_malicious_hits or intel.attachment_malicious_hits
+            )
         if override:
             score = max(score, self._floor)
         score = max(0, min(100, score))
@@ -130,6 +139,16 @@ class ScoreFuser:
             components=components,
             summary=self._summary(band, score, method, ml, override),
         )
+
+    @staticmethod
+    def _apply_intel(subscores: dict[str, float], intel: ThreatIntel) -> None:
+        if intel.url_malicious_hits > 0:
+            subscores["url"] = max(subscores["url"], 95.0)
+        if intel.attachment_malicious_hits > 0:
+            subscores["attachment"] = 100.0
+        age = intel.min_domain_age_days
+        if age is not None and age < 30:
+            subscores["url"] = max(subscores["url"], 70.0 if age < 7 else 55.0)
 
     @staticmethod
     def _summary(band, score: int, method: str, ml: MLPrediction, override: bool) -> str:

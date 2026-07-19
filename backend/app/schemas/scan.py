@@ -17,6 +17,7 @@ from app.schemas.features import (
     MLPrediction,
     RiskAssessment,
 )
+from app.schemas.intel import ThreatIntel
 
 
 class ScanResult(BaseModel):
@@ -24,4 +25,5 @@ class ScanResult(BaseModel):
     features: FeatureVector
     assessment: RiskAssessment  # rule engine (M2) — always present, fully explainable
     ml: MLPrediction  # classifier (M3/M4) — may be unavailable
-    fusion: FusionResult  # final blended score (M4); fusion.score is the headline number
+    intel: ThreatIntel = ThreatIntel.disabled()  # external reputation (M5) — may be disabled
+    fusion: FusionResult  # final blended score (M4/M5); fusion.score is the headline number

@@ -51,6 +51,17 @@ class Settings(BaseSettings):
     # ---- Redis (cache + Celery broker) ----
     redis_url: str = "redis://redis:6379/0"
 
+    # ---- Threat intelligence (M5) ----
+    # Master switch. Off by default: with no keys the enrichment is a no-op, and
+    # keeping it explicit means the local pipeline stays deterministic in tests/CI.
+    intel_enabled: bool = False
+    virustotal_api_key: str = ""
+    urlscan_api_key: str = ""
+    hibp_api_key: str = ""
+    intel_cache_ttl_seconds: int = 86_400  # reputation changes slowly; cache a day
+    intel_provider_timeout_seconds: float = 4.0  # bound each external call
+    intel_max_urls: int = 5  # only enrich the top-N URLs to respect rate limits
+
     # ---- LLM analyst (Gemini first; provider-swappable) ----
     llm_provider: str = "gemini"
     gemini_api_key: str = ""

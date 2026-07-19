@@ -23,8 +23,9 @@ def test_analyze_pasted_phishing() -> None:
     assert body["parsed"]["reply_to_mismatch"] is True
     assert any(i["id"] == "risky_attachment" for i in body["assessment"]["indicators"])
 
-    # ML + fusion present and well-formed regardless of whether a model is loaded.
+    # ML + intel + fusion present and well-formed regardless of external config.
     assert isinstance(body["ml"]["available"], bool)
+    assert body["intel"]["enabled"] is False  # intel off by default -> deterministic
     fusion = body["fusion"]
     assert 0 <= fusion["score"] <= 100
     assert fusion["method"] in {"fused", "rules_only"}

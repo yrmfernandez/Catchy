@@ -8,6 +8,7 @@ from app.schemas.features import (
     RiskBand,
     Severity,
 )
+from app.schemas.intel import ThreatIntel
 from app.services.scoring import ScoreFuser
 
 fuser = ScoreFuser(critical_floor=90)
@@ -67,3 +68,26 @@ def test_score_bounds() -> None:
     ml = MLPrediction(available=True, probability=0.0)
     result = fuser.fuse(FeatureVector(), _assessment(0), ml)
     assert 0 <= result.score <= 100
+
+
+def test_intel_malicious_url_forces_override() -> None:
+    # A VirusTotal-confirmed malicious URL must floor the score even if the
+    # ML probability and structural features look tame.
+    intel = ThreatIntel(enabled=True, available=True, url_malicious_hits=1)
+    ml = MLPrediction(available=True, probability=0.1)
+    result = fuser.fuse(FeatureVector(), _assessment(10), ml, intel)
+
+    assert result.critical_override is True
+    assert result.score >= 90
+    assert result.band == RiskBand.critical
+
+
+def test_intel_young_domain_raises_score() -> None:
+    features = FeatureVector()
+    ml = MLPrediction(available=True, probability=0.2)
+    baseline = fuser.fuse(features, _assessment(0), ml)
+
+    intel = ThreatIntel(enabled=True, available=True, min_domain_age_days=3)
+    boosted = fuser.fuse(features, _assessment(0), ml, intel)
+
+    assert boosted.score > baseline.score

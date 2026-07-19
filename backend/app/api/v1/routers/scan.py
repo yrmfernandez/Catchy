@@ -63,13 +63,13 @@ async def parse_uploaded(
 
 
 @router.post("/analyze", response_model=ScanResult, summary="Analyze a pasted email")
-def analyze_pasted(
+async def analyze_pasted(
     payload: ParseRequest,
     service: ScanService = Depends(get_scan_service),
     settings: Settings = Depends(get_settings),
 ) -> ScanResult:
     _guard_size(len(payload.raw_email.encode("utf-8", "replace")), settings)
-    return service.analyze(payload.raw_email)
+    return await service.analyze_async(payload.raw_email)
 
 
 @router.post("/analyze/file", response_model=ScanResult, summary="Analyze an uploaded .eml")
@@ -84,4 +84,4 @@ async def analyze_uploaded(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded file is empty."
         )
     _guard_size(len(raw), settings)
-    return service.analyze(raw)
+    return await service.analyze_async(raw)
