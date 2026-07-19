@@ -7,8 +7,12 @@ FastAPI dependency rather than importing a global — it keeps things testable.
 """
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# backend/app/core/config.py -> parents[3] is the repo root.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
@@ -28,6 +32,14 @@ class Settings(BaseSettings):
     # Cap the raw email size we will parse. Emails larger than this are rejected
     # before parsing, bounding memory use and blunting a trivial DoS vector.
     max_email_bytes: int = 2_000_000  # 2 MB
+
+    # ---- ML serving ----
+    # Path to the M3 model bundle. Absent (e.g. CI, or before first training) is
+    # fine: scoring degrades gracefully to the rule engine. Override via env in prod.
+    model_path: str = str(_REPO_ROOT / "ml" / "models" / "catchy_model.joblib")
+    # On a confirmed-malicious signal, the fused score is floored to at least this,
+    # so a single decisive indicator can't be averaged away into "looks fine".
+    critical_override_floor: int = 90
 
     # ---- Database ----
     postgres_user: str = "catchy"

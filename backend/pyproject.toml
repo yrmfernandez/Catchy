@@ -15,6 +15,13 @@ dependencies = [
     "pydantic-settings>=2.3",
     "celery>=5.4",
     "redis>=5.0",
+    # ML serving: load and run the M3 model bundle. The artifact holds only
+    # sklearn/scipy objects, so the training package (catchy_ml) is not needed here.
+    "scikit-learn>=1.5",
+    "scipy>=1.13",
+    "numpy>=1.26",
+    "joblib>=1.4",
+    "lightgbm>=4.3",
 ]
 
 [project.optional-dependencies]

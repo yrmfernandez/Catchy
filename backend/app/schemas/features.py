@@ -86,3 +86,44 @@ class RiskAssessment(BaseModel):
     band: RiskBand
     summary: str = Field(description="One-line, rule-derived summary (not LLM-generated)")
     indicators: list[Indicator] = Field(default_factory=list)
+
+
+class MLPrediction(BaseModel):
+    """Output of the ML classifier (M3 model served in M4).
+
+    `available` is False when no model file is loaded — the app still works, it
+    just falls back to the rule engine. The probability is *calibrated*, so it is
+    safe to blend with the other component scores during fusion.
+    """
+
+    available: bool
+    probability: float | None = Field(default=None, description="Calibrated P(phishing), 0-1")
+    label: str | None = Field(default=None, description="'phishing' or 'legit' at the threshold")
+    model_type: str | None = None
+    threshold: float | None = None
+
+
+class FusionComponent(BaseModel):
+    """One weighted contributor to the final score."""
+
+    name: str = Field(description="ml | url | sender | attachment | ai")
+    score: float = Field(description="This dimension's 0-100 sub-score")
+    weight: float = Field(description="Its share of the blend (renormalised over present ones)")
+
+
+class FusionResult(BaseModel):
+    """The final, blended verdict.
+
+    `score` fuses the ML probability with the rule-derived per-dimension sub-scores
+    using the project's weights (ML 35 / URL 25 / sender 20 / attachment 10 / AI 10;
+    AI joins at M6). When the ML model is unavailable the blend can't run, so this
+    falls back to the pure rule score (`method = 'rules_only'`). A confirmed-
+    malicious indicator triggers `critical_override`, flooring the score.
+    """
+
+    score: int = Field(ge=0, le=100, description="Final phishing score, 0-100")
+    band: RiskBand
+    method: str = Field(description="'fused' or 'rules_only'")
+    critical_override: bool = False
+    components: list[FusionComponent] = Field(default_factory=list)
+    summary: str

@@ -13,13 +13,21 @@ from app.schemas.features import FeatureVector, Indicator, RiskAssessment, RiskB
 from app.services.scoring.rules import RULES
 
 # Score thresholds -> band. Tuned so any single high-severity rule lands at least
-# in "medium", and a couple of strong signals reach "high"/"critical".
+# in "medium", and a couple of strong signals reach "high"/"critical". Shared by
+# the rule scorer and the M4 fuser so both speak the same language.
 _BANDS: tuple[tuple[int, RiskBand], ...] = (
     (75, RiskBand.critical),
     (50, RiskBand.high),
     (25, RiskBand.medium),
     (0, RiskBand.low),
 )
+
+
+def band_for_score(score: int) -> RiskBand:
+    for threshold, band in _BANDS:
+        if score >= threshold:
+            return band
+    return RiskBand.low
 
 
 class RuleScorer:
@@ -30,20 +38,13 @@ class RuleScorer:
         indicators.sort(key=lambda i: i.points, reverse=True)
 
         total = min(sum(i.points for i in indicators), 100)
-        band = self._band(total)
+        band = band_for_score(total)
         return RiskAssessment(
             score=total,
             band=band,
             summary=self._summary(band, indicators),
             indicators=indicators,
         )
-
-    @staticmethod
-    def _band(score: int) -> RiskBand:
-        for threshold, band in _BANDS:
-            if score >= threshold:
-                return band
-        return RiskBand.low
 
     @staticmethod
     def _summary(band: RiskBand, indicators: list[Indicator]) -> str:

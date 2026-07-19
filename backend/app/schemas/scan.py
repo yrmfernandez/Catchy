@@ -11,10 +11,17 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 from app.schemas.email import ParsedEmail
-from app.schemas.features import FeatureVector, RiskAssessment
+from app.schemas.features import (
+    FeatureVector,
+    FusionResult,
+    MLPrediction,
+    RiskAssessment,
+)
 
 
 class ScanResult(BaseModel):
     parsed: ParsedEmail
     features: FeatureVector
-    assessment: RiskAssessment
+    assessment: RiskAssessment  # rule engine (M2) — always present, fully explainable
+    ml: MLPrediction  # classifier (M3/M4) — may be unavailable
+    fusion: FusionResult  # final blended score (M4); fusion.score is the headline number
