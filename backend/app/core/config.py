@@ -17,7 +17,11 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        # Always the repo-root .env, regardless of the working directory the app
+        # is launched from (`uvicorn` from backend/, pytest, alembic, …). Real
+        # environment variables still take precedence, which is how Docker and
+        # production inject config.
+        env_file=str(_REPO_ROOT / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -72,7 +76,10 @@ class Settings(BaseSettings):
     llm_enabled: bool = True  # off => never call the LLM even with a key
     llm_provider: str = "gemini"
     gemini_api_key: str = ""
-    llm_model: str = "gemini-1.5-flash"
+    # Google retires older models for new API keys, so keep this current.
+    # flash-lite is fast and has the most headroom on the free tier;
+    # `gemini-3-flash-preview` is more capable but sheds load under demand.
+    llm_model: str = "gemini-3.1-flash-lite"
     llm_timeout_seconds: float = 8.0
     # Cap the email text handed to the LLM: bounds tokens/cost and shrinks the
     # prompt-injection surface. The verdict is already decided, so this is lossy

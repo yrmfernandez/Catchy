@@ -14,13 +14,25 @@ import os
 import tempfile
 from collections.abc import AsyncIterator
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import NullPool
+# Pin the external layers OFF before anything imports the app. Settings now read
+# the repo-root .env, which on a developer machine may hold real API keys — tests
+# must stay deterministic and must never make network calls. Real env vars take
+# precedence over the .env file, so this wins.
+os.environ["LLM_ENABLED"] = "false"
+os.environ["INTEL_ENABLED"] = "false"
+os.environ["GEMINI_API_KEY"] = ""
 
-from app.db import models  # noqa: F401 - register tables on the metadata
-from app.db.base import Base
-from app.db.session import get_session
-from app.main import app
+from sqlalchemy.ext.asyncio import (  # noqa: E402
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.pool import NullPool  # noqa: E402
+
+from app.db import models  # noqa: F401,E402 - register tables on the metadata
+from app.db.base import Base  # noqa: E402
+from app.db.session import get_session  # noqa: E402
+from app.main import app  # noqa: E402
 
 _DB_PATH = os.path.join(tempfile.gettempdir(), "catchy_test.db")
 if os.path.exists(_DB_PATH):

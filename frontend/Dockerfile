@@ -12,6 +12,8 @@ FROM node:20-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Opt into Next's standalone output for the container build (see next.config.mjs).
+ENV DOCKER_BUILD=1
 RUN npm run build
 
 FROM node:20-slim AS runner
