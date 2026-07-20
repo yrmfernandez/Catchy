@@ -1,21 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ------------------------------------------------------------------ *
  * Design tokens. Light is the default :root; dark overrides via the
- * data-theme attribute that the inline head script sets before paint.
- * Every surface reads from these vars, so theming is a single switch.
+ * data-theme attribute the inline head script sets before paint.
+ * Tailwind maps these (see tailwind.config.ts), so one flip themes all.
  * ------------------------------------------------------------------ */
 :root {
   color-scheme: light;
   --bg: #f5f8fb;
   --surface: #ffffff;
+  --surface-2: #f0f4f9;
   --line: #e4e9f0;
   --ink: #0f1b2d;
   --ink-muted: #5a6b80;
   --accent: #0ea5b7;
   --accent-2: #22c6d6;
-  --safe: #12a878;
-  --crit: #e5484d;
-  --ring-safe: #d6f2e8;
-  --ring-crit: #fbe0e1;
+  --band-low: #12a878;
+  --band-medium: #d98324;
+  --band-high: #e2622c;
+  --band-critical: #e5484d;
   --logo-knockout: #ffffff;
   --shadow: 0 1px 2px rgba(15, 27, 45, 0.06), 0 10px 30px rgba(15, 27, 45, 0.07);
 }
@@ -24,74 +29,56 @@
   color-scheme: dark;
   --bg: #0e1420;
   --surface: #151d2b;
+  --surface-2: #1b2536;
   --line: #263141;
   --ink: #e8edf3;
   --ink-muted: #9ba7b6;
   --accent: #22c0cc;
   --accent-2: #3fe0ea;
-  --safe: #4fd1a0;
-  --crit: #ff6b74;
-  --ring-safe: #12271f;
-  --ring-crit: #33191c;
+  --band-low: #4fd1a0;
+  --band-medium: #e8b04b;
+  --band-high: #f08a5d;
+  --band-critical: #ff6b74;
   --logo-knockout: #0e1420;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 34px rgba(0, 0, 0, 0.35);
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  * {
+    @apply box-border;
+  }
+  html,
+  body {
+    @apply m-0 p-0;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
+@layer components {
+  .mono {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  }
 
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.mono {
-  font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
-}
-
-/* Global top bar: brand on the left, theme toggle on the right. */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  padding: 0 20px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-/* Square icon button (theme toggle, and future header actions). */
-.icon-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.icon-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.icon-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  /* Square icon button (theme toggle, header actions). */
+  .icon-btn {
+    @apply inline-grid place-items-center h-9 w-9 rounded-[10px] border cursor-pointer;
+    border-color: var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .icon-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .icon-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 }
