@@ -21,6 +21,9 @@ from collections.abc import AsyncIterator
 os.environ["LLM_ENABLED"] = "false"
 os.environ["INTEL_ENABLED"] = "false"
 os.environ["GEMINI_API_KEY"] = ""
+# The suite makes many requests from one client; the limiter is exercised
+# directly in test_hardening instead of throttling every other test.
+os.environ["RATE_LIMIT_ENABLED"] = "false"
 
 from sqlalchemy.ext.asyncio import (  # noqa: E402
     AsyncSession,

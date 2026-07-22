@@ -40,6 +40,11 @@ services:
     environment:
       POSTGRES_HOST: postgres
       REDIS_URL: redis://redis:6379/0
+      # Use the locally-trained model if present (train it with: cd ml && python -m catchy_ml.train).
+      # If absent, scoring degrades gracefully to the rule engine.
+      MODEL_PATH: /models/catchy_model.joblib
+    volumes:
+      - ./ml/models:/models:ro
     depends_on:
       postgres:
         condition: service_healthy

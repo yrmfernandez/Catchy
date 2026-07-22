@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_email_parser, get_scan_service
 from app.api.security_deps import get_current_user_optional
 from app.core.config import Settings, get_settings
+from app.core.ratelimit import scan_rate_limiter
 from app.db.models import User
 from app.db.repositories import ScanRepository
 from app.db.session import get_session
@@ -27,7 +28,8 @@ from app.services.analysis import ScanService
 from app.services.parsing import EmailParserService
 
 logger = logging.getLogger("catchy.scan")
-router = APIRouter(prefix="/scan", tags=["scan"])
+# Scanning runs the full (potentially LLM-backed) pipeline, so rate-limit it.
+router = APIRouter(prefix="/scan", tags=["scan"], dependencies=[Depends(scan_rate_limiter)])
 
 
 async def _maybe_save(

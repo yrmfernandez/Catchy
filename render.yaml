@@ -1,0 +1,61 @@
+# Render blueprint for the Catchy backend (the ML/Celery stack that doesn't fit
+# Vercel's serverless limits). The frontend deploys separately on Vercel.
+#
+# The model is TRAINED DURING THE BUILD and shipped with the service — so ML is
+# available in production without committing a binary artifact to git.
+services:
+  - type: web
+    name: catchy-api
+    runtime: python
+    plan: starter
+    buildCommand: >-
+      pip install ./backend &&
+      pip install -r ml/requirements.txt &&
+      (cd ml && python -m catchy_ml.train)
+    startCommand: >-
+      cd backend &&
+      alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      # Model produced by the build step above.
+      - key: MODEL_PATH
+        value: /opt/render/project/src/ml/models/catchy_model.joblib
+      # Lock CORS to the deployed frontend origin.
+      - key: CORS_ORIGINS
+        sync: false # e.g. https://catchy.vercel.app
+      # Secrets — set in the Render dashboard (or generated).
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false # e.g. an Upstash Redis URL
+      # Threat intel is optional; leave INTEL_ENABLED unset (defaults off).
+      # Managed Postgres, wired from the database below.
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: catchy-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: catchy-db
+          property: port
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: catchy-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: catchy-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: catchy-db
+          property: database
+
+databases:
+  - name: catchy-db
+    plan: basic-256mb

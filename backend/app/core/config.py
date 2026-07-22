@@ -37,6 +37,20 @@ class Settings(BaseSettings):
     # before parsing, bounding memory use and blunting a trivial DoS vector.
     max_email_bytes: int = 2_000_000  # 2 MB
 
+    # ---- CORS ----
+    # In development we allow the local frontend origins. In production, set this
+    # to the deployed frontend origin(s), comma-separated. Empty + non-dev means
+    # same-origin only (e.g. behind the Vercel rewrite), which needs no CORS.
+    cors_origins: str = ""
+
+    # ---- Rate limiting ----
+    # Simple in-process limiter (per IP, per route). Good enough for a single
+    # instance; a multi-instance deployment would move this to Redis.
+    rate_limit_enabled: bool = True
+    rate_limit_requests: int = 30  # scan requests / minute / IP
+    auth_rate_limit_requests: int = 10  # auth attempts / minute / IP (brute-force guard)
+    rate_limit_window_seconds: int = 60
+
     # ---- ML serving ----
     # Path to the M3 model bundle. Absent (e.g. CI, or before first training) is
     # fine: scoring degrades gracefully to the rule engine. Override via env in prod.
@@ -85,6 +99,10 @@ class Settings(BaseSettings):
     # prompt-injection surface. The verdict is already decided, so this is lossy
     # only for the *explanation*, never for detection.
     llm_max_input_chars: int = 4_000
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 
     @property
     def database_url(self) -> str:
