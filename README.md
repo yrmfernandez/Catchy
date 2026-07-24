@@ -145,11 +145,19 @@ artifact, and typechecks/builds the frontend + Docker images.
 
 ## Deployment
 
-- **Backend → Render** ([render.yaml](render.yaml)): trains the model during the
-  build and ships it, runs migrations on start, wires managed Postgres. Set
-  `GEMINI_API_KEY`, `REDIS_URL`, and `CORS_ORIGINS` in the dashboard.
+- **Backend → Hugging Face Spaces** (Docker): runs [backend/Dockerfile](backend/Dockerfile)
+  directly on a free, always-on instance with enough RAM for the ML deps. The
+  [backend/README.md](backend/README.md) frontmatter is the Space manifest.
+  Set `ENVIRONMENT=production` and `CORS_ORIGINS` (the Vercel origin); add
+  `GEMINI_API_KEY` for LLM explanations. Anonymous scanning works with no DB.
 - **Frontend → Vercel** ([vercel.json](vercel.json)): set
-  `NEXT_PUBLIC_API_BASE_URL` to the backend URL.
+  `NEXT_PUBLIC_API_BASE_URL` to the Space's API base
+  (`https://<owner>-<space>.hf.space/api/v1`) and redeploy — Next.js inlines
+  `NEXT_PUBLIC_*` at **build time**, so a rebuild is required for changes to take
+  effect.
+- **Alternative backend → Render** ([render.yaml](render.yaml)) also trains the
+  model during build and wires managed Postgres, if you want accounts + history
+  on a paid plan.
 
 ---
 
